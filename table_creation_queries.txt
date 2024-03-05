@@ -1,0 +1,27 @@
+create table student_table (id int not null auto_increment primary key,name varchar(50),dob date);
+
+create table department_table (id int not null auto_increment primary key,department_name varchar(40));
+
+create table collage_table (id int not null auto_increment primary key, collage_name varchar(40));
+
+create table course_table (id int not null auto_increment primary key, course_name varchar(20));
+
+alter table student_table add column department_id int;
+
+alter table student_table add FOREIGN KEY(department_id) references department_table(id);
+
+alter table department_table add column collage_id int;
+
+alter table department_table add FOREIGN KEY(collage_id) references collage_table(id);
+
+alter table student_table add constraint unique(department_id);
+
+create table student_course_table (course_id int,student_id int,constraint foreign key(course_id) references course_table(id),constraint foreign key(student_id) references student_table(id));
+
+alter table collage_table add constraint unique(collage_name);
+
+alter table department_table add constraint unique(department_name,collage_id)
+
+alter table student_table add column email_id varchar(40);
+
+alter table student_table add constraint unique(email_id);

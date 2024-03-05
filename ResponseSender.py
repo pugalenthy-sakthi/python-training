@@ -3,5 +3,4 @@ from Response import ResponseBuilder
 
 def ResponseSender(http_status,msg,data,status_code):
     response = ResponseBuilder(http_status,msg,data)
-    # raise FileNotFoundError
     return jsonify(response.getResponse()),status_code
