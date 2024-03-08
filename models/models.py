@@ -11,7 +11,6 @@ class User(Base):
     email = Column(String(60),nullable=False,unique=True)
     password = Column(Text,nullable=False)
     role_id = Column(Integer,ForeignKey('user_role_table.id'),nullable=False)
-    is_deleted = Column(Boolean,default=False)
     
     activities = relationship('Activity',uselist=True, back_populates='user')
     role = relationship('Role', backref='users')
@@ -26,15 +25,12 @@ class Activity(Base):
     
     __tablename__ = 'user_activity_table'
     user_id = Column(Integer,ForeignKey('user_table.id'),nullable=False)
-    access_token = Column(Text,nullable=False)
-    refresh_token = Column(Text,nullable=False)
     login_at = Column(DateTime(timezone=True),default=func.now())
     logout_at = Column(DateTime(timezone=True))
+    session_id = Column(String(50),nullable=False)
     
-    def __init__(self,user,access,refresh):
+    def __init__(self,user):
         self.user = user
-        self.access_token = access
-        self.refresh_token = refresh
     
     user = relationship('User', back_populates='activities')
 

@@ -1,34 +1,22 @@
-
-from exception.DataBaseError import DataBaseError
-from exception.DataNotPresentError import DataNotPresentError
-from exception.DuplicateDataError import DuplicateDataError
-from exception.InvalidDataError import InvalidDataError
+from exception import global_error_handler
 from factory import create_app
 from config import db
 from models.models import User,Activity
 from flask_migrate import Migrate
-from common import response
+from common import response_functions,response_strings
 
 
 app = create_app()
 migrate = Migrate(app,db)
 
+@app.errorhandler(404)
+def invlaid_route_handle(error):
+    return response_functions.not_found_sender([],response_strings.wrong_url_message)
 
-@app.errorhandler(DataNotPresentError)
-def date_not_present_error(error):
-    return response.response_builder(error.error_data['http_status'],[],error.error_data['error_phrase'])
+@app.errorhandler(Exception)
+def global_error(error):
+    return global_error_handler.global_error_handler(error)
 
-@app.errorhandler(InvalidDataError)
-def invalid_data_error(error):
-    return response.response_builder(error.error_data['http_status'],[],error.error_data['error_phrase'])
-
-@app.errorhandler(DataBaseError)
-def database_error(error):
-    return response.response_builder(error.error_data['http_status'],[],error.error_data['error_phrase'])
-
-@app.errorhandler(DuplicateDataError)
-def duplicate_data_error(error):
-    return response.response_builder(error.error_data['http_status'],[],error.error_data['error_phrase'])
 
 if __name__=='__main__':
     app.run(host='0.0.0.0',port=app.config['PORT'])
