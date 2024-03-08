@@ -23,4 +23,9 @@ def create_role(role):
 @token_required
 def logout():
     return auth_service.user_logout()
+
+
+@auth_route.get('/refresh')
+def refresh():
+    return auth_service.get_refreshed_token()
     

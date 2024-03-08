@@ -44,6 +44,32 @@ def create_user_activity(activity:Activity):
     try:
         db.session.add(activity)
         db.session.commit()
-    except:
+    except Exception as e:
         raise DataBaseError(error_strings.database_error)
     
+    
+def get_user_activity(access_token):
+    
+    try:
+        activity = db.session.query(Activity).filter_by(access_token=access_token).first()
+        return activity
+    except Exception as e:
+        raise DataBaseError(error_strings.database_error)
+    
+    
+def update_user_activity(activity):
+    try:
+        db.session.add(activity)
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        raise DataBaseError(error_strings.database_error)
+    
+    
+def get_user_activity_refresh(refresh_token):
+    
+    try:
+        activity = db.session.query(Activity).filter_by(refresh_token=refresh_token).first()
+        return activity
+    except Exception as e:
+        raise DataBaseError(error_strings.database_error)

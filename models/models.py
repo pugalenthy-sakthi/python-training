@@ -29,7 +29,7 @@ class Activity(Base):
     access_token = Column(Text,nullable=False)
     refresh_token = Column(Text,nullable=False)
     login_at = Column(DateTime(timezone=True),default=func.now())
-    logout_at = Column(DateTime(timezone=True),default=null)
+    logout_at = Column(DateTime(timezone=True))
     
     def __init__(self,user,access,refresh):
         self.user = user

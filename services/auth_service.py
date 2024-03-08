@@ -8,6 +8,8 @@ from database import user_db_services
 from common import response,response_strings,error_strings
 from http import HTTPStatus
 from flask_jwt_extended import create_access_token,create_refresh_token
+from sqlalchemy import func
+import datetime 
 
 
 def user_sign_up():
@@ -71,4 +73,32 @@ def role_creation(role_name):
     
 def user_logout():
     
-    return "Success",200
+    access_token = request.headers['Authorization']
+    activity = user_db_services.get_user_activity(access_token)
+    activity.logout_at = datetime.datetime.now()
+    user_db_services.update_user_activity(activity)
+    
+    return response.response_builder(HTTPStatus.OK,{},response_strings.user_login_success)
+
+
+def get_refreshed_token():
+    
+    if 'Authorization' not in request.headers:
+        return "FORDIBBEN",403
+    
+    refresh_token = request.headers['Authorization']
+    activity = user_db_services.get_user_activity_refresh(refresh_token)
+    if activity != None and activity.logout_at == None:
+        user = activity.user
+        access_token = create_access_token(user.email)
+        refresh_token = create_refresh_token(user.email)
+        token_response = {
+            'access_token':access_token,
+            'refresh_token':refresh_token
+        }
+        activity.access_token = access_token
+        activity.refresh_token = refresh_token
+        user_db_services.update_user_activity(activity)
+        return response.response_builder(HTTPStatus.OK,token_response,response_strings.user_login_success)
+    else:
+        return "FORBIDDEN",403
