@@ -3,7 +3,7 @@ from flask_jwt_extended import decode_token
 from database import user_services
 from exception.ForbiddenError import ForbiddenError
 from common import response_strings,response_functions
-
+from util import caching
 
 open_paths = [
     '/auth/signup/',
@@ -20,8 +20,18 @@ def token_reqiured(*args,**kwargs):
             token = request.headers['Authorization']
             try:
                 data = decode_token(token)
-                session = user_services.get_activity_by_session(data['session_id'])
-                if session == None or session.logout_at !=None:
+                session_id = data['session_id']
+                user_activity = caching.get_activity_cache(session_id)
+                session = None
+                if user_activity == None :
+                    session = user_services.get_activity_by_session(data['session_id'])
+                    if session == None :
+                        return response_functions.forbidden_response_sender([],response_strings.invalid_credentials)
+                    caching.activity_cache(session,session_id)
+                    session = caching.get_activity_cache(session_id)
+                else:
+                    session = user_activity
+                if session['logout_at'] != 'None':
                     return response_functions.forbidden_response_sender([],response_strings.invalid_credentials)
                 request.environ['HTTP_USER_DATA'] = data['sub']
                 request.environ['HTTP_SESSION_ID'] = data['session_id']

@@ -8,5 +8,6 @@ def advertise_email():
     with app.app_context():
         res = send_mail()
         print(res)
+    
         
         

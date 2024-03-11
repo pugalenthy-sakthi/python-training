@@ -43,6 +43,7 @@ def get_user(email:str):
 def get_activity_by_session(session:str):
     
     try:
+        print("User Activity gets Called")
         activity = db.session.query(Activity).filter_by(session_id=session).first()
         return activity
     except Exception as e:

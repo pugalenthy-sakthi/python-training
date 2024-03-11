@@ -4,15 +4,16 @@ from middleware.token_required import token_reqiured
 from common import response_strings,response_functions
 from config import redis_client
 from config import cache
+from util import session_genarator
 
 user_route = Blueprint('user_route',__name__,url_prefix='/user')
 
 
 @user_route.get('/')
+@cache.cached(timeout=30,make_cache_key=session_genarator.get_curent_session)
 def get_user():
     user_email = request.headers['User-Data']
     user = user_services.get_user(user_email)
-
     response_body = {
             "name":user.name,
             "email":user.email,
@@ -24,6 +25,7 @@ def get_user():
 @user_route.post('/redis/<string:key>/<string:value>')
 def save_into_redis(key,value):
         try:
+                # redis_client.set('foo','far')
                 redis_client.set(key,value)
                 return "200"
         except Exception as e:

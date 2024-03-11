@@ -64,7 +64,7 @@ def login():
                 user_activity.session_id=session_id
                 user_services.create_user_activity(user_activity)
                 caching.activity_cache(user_activity,session_id)
-                print(session_id)
+                print(caching.get_activity_cache(session_id))
                 return response_functions.success_response_sender(token_response,response_strings.user_login_success)
             else:
                 return response_functions.forbidden_response_sender([],response_strings.invalid_credentials)
