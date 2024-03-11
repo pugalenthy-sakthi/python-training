@@ -32,7 +32,6 @@ def get_user_role():
     except Exception as e:
         raise DataBaseError(response_strings.server_error_message)
     
-    
 def get_user(email:str):
     try:
         user = db.session.query(User).filter_by(email=email).first()

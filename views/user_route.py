@@ -3,6 +3,7 @@ from database import user_services
 from middleware.token_required import token_reqiured
 from common import response_strings,response_functions
 from config import redis_client
+from config import cache
 
 user_route = Blueprint('user_route',__name__,url_prefix='/user')
 

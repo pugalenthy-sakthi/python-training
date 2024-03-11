@@ -8,7 +8,7 @@ from models.models import User,Role,Activity
 from database import user_services
 from common import response_strings,response_functions
 from flask_jwt_extended import create_access_token,create_refresh_token
-from util import session_genarator
+from util import session_genarator,caching
 import datetime
 
 
@@ -63,6 +63,8 @@ def login():
                 user_activity = Activity(user)
                 user_activity.session_id=session_id
                 user_services.create_user_activity(user_activity)
+                caching.activity_cache(user_activity,session_id)
+                print(session_id)
                 return response_functions.success_response_sender(token_response,response_strings.user_login_success)
             else:
                 return response_functions.forbidden_response_sender([],response_strings.invalid_credentials)

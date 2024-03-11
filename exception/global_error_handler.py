@@ -2,6 +2,7 @@ from common import response_functions,response_strings
 
 def global_error_handler(error:Exception):
     custom_error = ['DataBaseError','DataNotPresentError','DuplicateDataError','InvalidDataError','ForbiddenError']
+    print(error)
     
     if type(error).__name__ in custom_error:
         

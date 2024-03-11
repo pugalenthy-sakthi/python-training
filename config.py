@@ -28,6 +28,7 @@ class config:
     CACHE_REDIS_HOST = os.getenv('FLASK_CACHE_REDIS_HOST')
     CACHE_REDIS_PORT = os.getenv('FLASK_CACHE_REDIS_PORT')
     CACHE_REDIS_DB = os.getenv('FLASK_CACHE_REDIS_DB')
+    # CACHE_REDIS_PASSWORD = os.getenv('FLASK_CACHE_REDIS_DB')
     
 db = SQLAlchemy()
 bcrypt = Bcrypt()
