@@ -1,5 +1,5 @@
 from flask import Flask
-from config import config,db,bcrypt,jwt
+from config import config,db,bcrypt,jwt,mail,scheduler
 from views.admin_route import admin_route
 from views.user_route import user_route
 from views.auth_route import auth_route
@@ -17,4 +17,6 @@ def create_app():
     app.register_blueprint(auth_route)
     app.register_blueprint(user_route)
     app.before_request(token_reqiured)
+    scheduler.init_app(app)
+    mail.init_app(app)
     return app

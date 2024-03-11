@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 dotenv.load_dotenv()
 from flask_jwt_extended import JWTManager
+from flask_apscheduler import APScheduler
+from flask_mail import Mail
 
 
 class config:
@@ -18,3 +20,5 @@ class config:
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
+mail = Mail()
+scheduler = APScheduler()
