@@ -1,5 +1,5 @@
 from flask import Flask
-from config import config,db,bcrypt,jwt,mail,scheduler
+from config import config,db,bcrypt,jwt,mail,scheduler,cache,redis_client
 from views.admin_route import admin_route
 from views.user_route import user_route
 from views.auth_route import auth_route
@@ -19,4 +19,5 @@ def create_app():
     app.before_request(token_reqiured)
     scheduler.init_app(app)
     mail.init_app(app)
+    cache.init_app(app)
     return app

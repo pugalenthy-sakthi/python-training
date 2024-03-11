@@ -69,3 +69,7 @@ def update_user_activity(activity):
         raise DataBaseError(response_strings.server_error_message)
     
     
+def get_users():
+    return db.session.query(User).all()
+    
+    
