@@ -4,6 +4,7 @@ from config import db
 from models.models import User,Activity
 from flask_migrate import Migrate
 from common import response_functions,response_strings
+from util.scheduler import scheduler
 
 
 app = create_app()
@@ -19,4 +20,5 @@ def global_error(error):
 
 
 if __name__=='__main__':
+    scheduler.run
     app.run(host='0.0.0.0',port=app.config['PORT'])
