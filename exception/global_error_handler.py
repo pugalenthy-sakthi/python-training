@@ -3,8 +3,8 @@ import traceback
 
 def global_error_handler(error:Exception):
     custom_error = ['DataBaseError','DataNotPresentError','DuplicateDataError','InvalidDataError','ForbiddenError']
-    print(traceback.print_exception(error))
-    
+    # print(traceback.print_exception(error))
+    print(error)
     if type(error).__name__ in custom_error:
         
         error_name = type(error).__name__

@@ -7,10 +7,11 @@ from util import caching
 
 open_paths = [
     '/auth/signup/',
-    '/auth/login/'
+    '/auth/login/',
 ]
 
 def token_reqiured(*args,**kwargs):
+    print(request.path)
     if request.path in open_paths:
         pass
     else:
@@ -36,4 +37,5 @@ def token_reqiured(*args,**kwargs):
                 request.environ['HTTP_USER_DATA'] = data['sub']
                 request.environ['HTTP_SESSION_ID'] = data['session_id']
             except Exception as e:
+                print(e)
                 raise ForbiddenError(response_strings.invalid_credentials)
