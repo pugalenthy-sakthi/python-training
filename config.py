@@ -3,13 +3,19 @@ import os
 import dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-dotenv.load_dotenv()
 from flask_jwt_extended import JWTManager
 from flask_apscheduler import APScheduler
 from flask_mail import Mail
 from flask_caching import Cache
 import redis
 import pymongo
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+
+
+
+dotenv.load_dotenv()
 
 
 class config:
@@ -45,3 +51,5 @@ redis_client = redis.Redis(host=config.CACHE_REDIS_HOST,port=config.CACHE_REDIS_
 oauth = OAuth()
 myclient = pymongo.MongoClient(config.MONGODB_URI)
 mdb = myclient[config.MONGODB_DB]
+read_slave = create_engine(config.SQLALCHEMY_DATABASE_URI)
+read_head = sessionmaker(bind=read_slave)
