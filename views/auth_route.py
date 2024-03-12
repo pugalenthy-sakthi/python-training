@@ -1,5 +1,4 @@
-from flask import Blueprint,request,render_template
-from middleware.custome_decorator import token_required
+from flask import Blueprint,request, url_for
 from exception.DataNotPresentError import DataNotPresentError
 from exception.DuplicateDataError import DuplicateDataError
 from exception.InvalidDataError import InvalidDataError
@@ -10,6 +9,7 @@ from common import response_strings,response_functions
 from flask_jwt_extended import create_access_token,create_refresh_token
 from util import session_genarator,caching
 import datetime
+from config import config,oauth
 
 
 
@@ -89,6 +89,7 @@ def logout():
     activity = user_services.get_activity_by_session(session_id)
     activity.logout_at = datetime.datetime.now()
     user_services.update_user_activity(activity)
+    caching.delete_activity_cache(session_id)
     return response_functions.success_response_sender({},response_strings.user_logout_success)
 
 
@@ -108,4 +109,43 @@ def refresh():
         return response_functions.success_response_sender(token_response,response_strings.refresh_token_success)
     else:
         return response_functions.forbidden_response_sender([],response_strings.invalid_credentials)
+    
+    
+@auth_route.get('/oauth/')
+def oauth_login():
+    
+    CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+    oauth.register(
+        name='google',
+        client_id=config.GOOGLE_CLIENT_ID,
+        client_secret=config.GOOGLE_CLIENT_SECRET,
+        server_metadata_url=CONF_URL,
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )
+    redirect_uri = url_for('auth_route.google_auth', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@auth_route.route('/google/login/')
+def google_auth():
+    email = oauth.google.authorize_access_token()['userinfo']['email']
+    user = user_services.get_user(email)
+    if user == None:
+        raise DataNotPresentError(response_strings.user_not_found)
+    session_id = session_genarator.get_random_id()
+    access_token = create_access_token(user.email,additional_claims={'session_id':session_id})
+    refresh_token = create_refresh_token(user.email,additional_claims={'session_id':session_id})
+    token_response = {
+        'access_token':access_token,
+        'refresh_token':refresh_token
+    }    
+    user_activity = Activity(user)
+    user_activity.session_id=session_id
+    user_services.create_user_activity(user_activity)
+    caching.activity_cache(user_activity,session_id)
+    return response_functions.success_response_sender(token_response,response_strings.user_login_success)
+    
+    
     

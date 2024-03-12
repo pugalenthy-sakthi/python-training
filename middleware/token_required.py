@@ -8,10 +8,13 @@ from util import caching
 open_paths = [
     '/auth/signup/',
     '/auth/login/',
+    '/auth/google/login/',
+    '/auth/oauth/',
+    '/favicon.ico'
+    
 ]
 
 def token_reqiured(*args,**kwargs):
-    print(request.path)
     if request.path in open_paths:
         pass
     else:
