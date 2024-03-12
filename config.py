@@ -9,6 +9,7 @@ from flask_apscheduler import APScheduler
 from flask_mail import Mail
 from flask_caching import Cache
 import redis
+import pymongo
 
 
 class config:
@@ -31,6 +32,8 @@ class config:
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
     APP_SECRET_KEY = os.getenv('SECRET_KEY')
+    MONGODB_URI = os.getenv('MONGODB_URI')
+    MONGODB_DB = os.getenv('MONGODB_DB')
     
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -40,3 +43,5 @@ scheduler = APScheduler()
 cache = Cache()
 redis_client = redis.Redis(host=config.CACHE_REDIS_HOST,port=config.CACHE_REDIS_PORT,db=config.CACHE_REDIS_DB)
 oauth = OAuth()
+myclient = pymongo.MongoClient(config.MONGODB_URI)
+mdb = myclient[config.MONGODB_DB]
