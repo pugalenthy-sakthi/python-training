@@ -6,8 +6,8 @@ from views.auth_route import auth_route
 from middleware.token_required import token_reqiured
 
 
+
 def create_app():
-    
     app = Flask(__name__)
     app.config.from_object(config)
     app.secret_key = config.APP_SECRET_KEY
@@ -23,3 +23,4 @@ def create_app():
     cache.init_app(app)
     oauth.init_app(app)
     return app
+

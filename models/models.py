@@ -55,10 +55,4 @@ class Uploads(Base):
     file_path = Column(Text,nullable=False)
     user_id = Column(Integer,ForeignKey('user_table.id'),nullable=False)
     
-    user = relationship('User',back_populates='uploads')
-    
-    
-    
-
-    
-    
+    user = relationship('User',back_populates='uploads')    
