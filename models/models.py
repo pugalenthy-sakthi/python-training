@@ -12,6 +12,8 @@ class User(Base):
     password = Column(Text,nullable=False)
     role_id = Column(Integer,ForeignKey('user_role_table.id'),nullable=False)
     
+    uploads = relationship('Uploads',uselist=True,back_populates='user')
+    
     activities = relationship('Activity',uselist=True, back_populates='user')
     role = relationship('Role', backref='users')
     
@@ -40,6 +42,22 @@ class Role(Base):
     
     __tablename__ = 'user_role_table'
     role_name = Column(String(10),nullable=False,unique=True)
+    
+    
+class Uploads(Base):
+    
+    __tablename__ = 'upload_table'
+    
+    def __init__(self,file_path,user):
+        self.file_path = file_path
+        self.user = user
+    
+    file_path = Column(Text,nullable=False)
+    user_id = Column(Integer,ForeignKey('user_table.id'),nullable=False)
+    
+    user = relationship('User',back_populates='uploads')
+    
+    
     
 
     

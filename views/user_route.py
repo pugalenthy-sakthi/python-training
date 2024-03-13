@@ -1,18 +1,20 @@
 from flask import Blueprint, jsonify, request
-from database import user_services,task_services
-from middleware.token_required import token_reqiured
+from database import user_services,task_services,uploads_services
 from common import response_strings,response_functions
 from config import redis_client
 from config import cache
-from util import session_genarator
+from util import session_genarator,async_function
 import datetime
+import os
+from models.models import Uploads
 
 user_route = Blueprint('user_route',__name__,url_prefix='/user')
 
 
 @user_route.get('/')
-@cache.cached(timeout=30,make_cache_key=session_genarator.get_curent_session)
+@cache.cached(timeout=3000,make_cache_key=session_genarator.get_curent_session)
 def get_user():
+    print("Hei")
     user_email = request.headers['User-Data']
     user = user_services.get_user(user_email)
     response_body = {
@@ -88,7 +90,52 @@ def delete_task(task_id):
         return response_functions.success_response_sender({},response_strings.task_delete_success)
         
                 
+@user_route.post("/singleUpload")
+def upload_single_file():
         
+        base_path = '/home/divum/Documents/python training/Flask_Crud_App_Security/'
+        if not os.path.exists(os.path.join(base_path,'uploads')):
+                os.mkdir(os.path.join(base_path,'uploads'))
+        base_path = os.path.join(base_path,'uploads')
+        user_name = request.headers['User-Data']
+        if not os.path.exists(os.path.join(base_path,user_name)):
+               os.mkdir(os.path.join(base_path,user_name))
+        base_path = os.path.join(base_path,user_name)
+        file = request.files['file']
+        file_name = str(session_genarator.millis())+file.filename
+        file.save(os.path.join(base_path,file_name))
+        user_email = request.headers['User-Data']
+        user = user_services.get_user(user_email)
+        upload = Uploads(os.path.join(base_path,file_name),user)
+        uploads_services.save_upload(upload)
+        return response_functions.created_response_sender(None,response_strings.upload_success)
+
+@user_route.post('/fileUpload')
+def multi_upload():
+        base_path = '/home/divum/Documents/python training/Flask_Crud_App_Security/'
+        if not os.path.exists(os.path.join(base_path,'uploads')):
+                os.mkdir(os.path.join(base_path,'uploads'))
+        base_path = os.path.join(base_path,'uploads')
+        user_name = request.headers['User-Data']
+        if not os.path.exists(os.path.join(base_path,user_name)):
+               os.mkdir(os.path.join(base_path,user_name))
+        base_path = os.path.join(base_path,user_name)
+        files = request.files.getlist('file')
+        for file in files:
+                file_name = str(session_genarator.millis())+file.filename
+                file.save(os.path.join(base_path,file_name))
+                user_email = request.headers['User-Data']
+                user = user_services.get_user(user_email)
+                upload = Uploads(os.path.join(base_path,file_name),user)
+                uploads_services.save_upload(upload)
+                
+        return response_functions.created_response_sender(None,response_strings.upload_success)
+
+@user_route.post('/asyncUpload')
+async def async_upload():
+    files = request.files.getlist('file')
+    await async_function.async_main(request.headers['Authorization'], files)
+    return "200"
 
 
 

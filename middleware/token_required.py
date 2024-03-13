@@ -14,6 +14,7 @@ open_paths = [
     
 ]
 
+
 def token_reqiured(*args,**kwargs):
     if request.path in open_paths:
         pass
@@ -42,3 +43,4 @@ def token_reqiured(*args,**kwargs):
             except Exception as e:
                 print(e)
                 raise ForbiddenError(response_strings.invalid_credentials)
+            

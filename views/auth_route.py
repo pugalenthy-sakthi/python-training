@@ -19,27 +19,23 @@ auth_route = Blueprint('auth_route',__name__,url_prefix='/auth')
 @auth_route.post('/signup/')
 def sign_up():
     
-    try:
-        required_fields = ['name','password','email']  
-        sign_up_details = request.get_json()
-        if all(field in sign_up_details for field in required_fields):
-            if verify_data.validate_signup_data(sign_up_details):
-                if user_services.get_user(sign_up_details['email']) != None:
-                    raise DuplicateDataError(response_strings.data_already_exist_message)
-                user_role = user_services.get_user_role()
-                user = User(sign_up_details['name'],sign_up_details['email'],sign_up_details['password'])
-                user.role = user_role
-                user_services.create_user(user)
-                return response_functions.created_response_sender([],response_strings.user_created_success)
+    required_fields = ['name','password','email']  
+    sign_up_details = request.get_json()
+    if all(field in sign_up_details for field in required_fields):
+        if verify_data.validate_signup_data(sign_up_details):
+            if user_services.get_user(sign_up_details['email']) != None:
+                raise DuplicateDataError(response_strings.data_already_exist_message)
+            user_role = user_services.get_user_role()
+            user = User(sign_up_details['name'],sign_up_details['email'],sign_up_details['password'])
+            user.role = user_role
+            user_services.create_user(user)
+            return response_functions.created_response_sender([],response_strings.user_created_success)
             
-            else:
-                raise InvalidDataError(response_strings.invalid_data_string)
         else:
-            raise DataNotPresentError(response_strings.invalid_data_string)
-        
-    except Exception as e:
-        print(e)
-        return "Error"
+            raise InvalidDataError(response_strings.invalid_data_string)
+    else:
+        raise DataNotPresentError(response_strings.invalid_data_string)
+
 
 
 @auth_route.post('/login/')
@@ -64,7 +60,6 @@ def login():
                 user_activity.session_id=session_id
                 user_services.create_user_activity(user_activity)
                 caching.activity_cache(user_activity,session_id)
-                print(caching.get_activity_cache(session_id))
                 return response_functions.success_response_sender(token_response,response_strings.user_login_success)
             else:
                 return response_functions.forbidden_response_sender([],response_strings.invalid_credentials)
