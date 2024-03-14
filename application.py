@@ -23,5 +23,13 @@ def global_error(error):
 
 if __name__=='__main__':
     # scheduler.start()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(app.run(host='0.0.0.0',port=app.config['PORT']))
+    
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        asyncio.run(app.run(host='0.0.0.0',port=app.config['PORT'],debug=True))
+    except (KeyboardInterrupt , ValueError):
+        pass
+    # loop = asyncio.get_event_loop()
+    # loop.run_until_complete()
+    
