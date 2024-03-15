@@ -149,10 +149,7 @@ def get_stores():
     if all(field in user_data for field in required_fields):
             point = Point(user_data['longitude'], user_data['latitude'])
             provider = provider_service.get_provider(user_data['service_provider'])
-            region = region_service.get_region(point,provider)
-            if region == None:
-                    return response_functions.not_found_sender(None,response_strings.region_not_found)
-            nearest_restaurants = restaurent_service.get_restaurents_by_region_and_points(region,provider,point,1,5)
+            nearest_restaurants = restaurent_service.get_restaurents_by_region_and_points(provider,point,1,5)
             response_body =[
                     {
                     "restaurant_name":restaurant.name,

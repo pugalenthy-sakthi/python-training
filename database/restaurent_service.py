@@ -29,11 +29,11 @@ def get_nearest_restaurents(service_provider,point):
     raise DataBaseError(response_strings.server_error_message)
   
   
-def get_restaurents_by_region_and_points(region:Region,service_provider:ServiceProvider,point,page_no,max_per_page):
+def get_restaurents_by_region_and_points(service_provider:ServiceProvider,point,page_no,max_per_page):
   
   try:
     point = func.ST_GeomFromText(point,4326)
-    return Restaurent.query.filter(and_(Restaurent.service_providers.contains(service_provider),func.ST_Contains(region.geometry,Restaurent.point))).order_by(
+    return Restaurent.query.filter(and_(Restaurent.service_providers.contains(service_provider))).order_by(
       asc(func.ST_Distance(Restaurent.point,point))
     ).paginate(page=page_no,error_out=False,max_per_page=max_per_page)
     
