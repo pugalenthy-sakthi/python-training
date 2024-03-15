@@ -1,12 +1,17 @@
 from flask import Blueprint, jsonify, request
-from database import user_services,task_services,uploads_services
+from database import user_services,task_services,uploads_services,provider_service,restaurent_service,region_service
 from common import response_strings,response_functions
 from config import redis_client
 from config import cache
+from exception.InvalidDataError import InvalidDataError
 from util import session_genarator,async_function
 import datetime
 import os
 from models.models import Uploads
+from shapely.geometry import Point
+from geopy.distance import geodesic
+from geoalchemy2.shape import to_shape
+from math import radians, cos, sin, asin, sqrt
 
 user_route = Blueprint('user_route',__name__,url_prefix='/user')
 
@@ -14,7 +19,6 @@ user_route = Blueprint('user_route',__name__,url_prefix='/user')
 @user_route.get('/')
 @cache.cached(timeout=3000,make_cache_key=session_genarator.get_curent_session)
 def get_user():
-    print("Hei")
     user_email = request.headers['User-Data']
     user = user_services.get_user(user_email)
     response_body = {
@@ -65,10 +69,10 @@ def create_task():
 def get_task():
         data = task_services.get_tasks(request.headers['User-Data'])
         response_data = [
-                {
-                        "task_id": str(task['_id']),
-                        "task_name": task['t_name'],
-                        "task_status": task['status']
+                        {
+                                "task_id": str(task['_id']),
+                                "task_name": task['t_name'],
+                                "task_status": task['status']
                         }
                         for task in data
                 ]
@@ -138,4 +142,28 @@ async def async_upload():
     return "200"
 
 
-
+@user_route.post('/getNearStores')
+def get_stores():
+    user_data = request.get_json()
+    required_fields = ['latitude','longitude','service_provider']
+    if all(field in user_data for field in required_fields):
+            point = Point(user_data['longitude'], user_data['latitude'])
+            provider = provider_service.get_provider(user_data['service_provider'])
+            region = region_service.get_region(point,provider)
+            if region == None:
+                    return response_functions.not_found_sender(None,response_strings.region_not_found)
+            nearest_restaurants = restaurent_service.get_restaurents_by_region_and_points(region,provider,point,1,5)
+            response_body =[
+                    {
+                    "restaurant_name":restaurant.name,
+                    "service_provider":provider.name,
+                    'latitude': to_shape(restaurant.point).y,
+                    'longitude': to_shape(restaurant.point).x
+                    }
+                    for restaurant in nearest_restaurants
+            ]
+            
+            return response_functions.success_response_sender(response_body,response_strings.restaurent_fetch_message)
+    else:
+            raise InvalidDataError(response_strings.invalid_data_string)
+        

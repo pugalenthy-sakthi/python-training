@@ -69,12 +69,12 @@ def login():
         raise DataNotPresentError(response_strings.invalid_data_string)
 
 
-# @auth_route.post('/create_role/<role_name>/')
-# def create_role(role_name):
-#     role = Role()
-#     role.role_name = role_name
-#     user_services.create_role(role)
-#     return "Role Created",200
+@auth_route.post('/create_role/<role_name>/')
+def create_role(role_name):
+    role = Role()
+    role.role_name = role_name
+    user_services.create_role(role)
+    return "Role Created",200
 
 
 @auth_route.get('/logout')
