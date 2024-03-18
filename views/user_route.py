@@ -1,17 +1,16 @@
+import time
 from flask import Blueprint, jsonify, request
 from database import user_services,task_services,uploads_services,provider_service,restaurent_service,region_service
 from common import response_strings,response_functions
 from config import redis_client
 from config import cache
-from exception.InvalidDataError import InvalidDataError
 from util import session_genarator,async_function
 import datetime
 import os
 from models.models import Uploads
 from shapely.geometry import Point
-from geopy.distance import geodesic
 from geoalchemy2.shape import to_shape
-from math import radians, cos, sin, asin, sqrt
+import requests
 
 user_route = Blueprint('user_route',__name__,url_prefix='/user')
 
@@ -95,7 +94,7 @@ def delete_task(task_id):
         
                 
 @user_route.post("/singleUpload")
-def upload_single_file():
+async def upload_single_file():
         
         base_path = '/home/divum/Documents/python training/Flask_Crud_App_Security/'
         if not os.path.exists(os.path.join(base_path,'uploads')):
@@ -116,6 +115,7 @@ def upload_single_file():
 
 @user_route.post('/fileUpload')
 def multi_upload():
+        
         base_path = '/home/divum/Documents/python training/Flask_Crud_App_Security/'
         if not os.path.exists(os.path.join(base_path,'uploads')):
                 os.mkdir(os.path.join(base_path,'uploads'))
@@ -139,6 +139,7 @@ def multi_upload():
 async def async_upload():
     files = request.files.getlist('file')
     await async_function.async_main(request.headers['Authorization'], files)
+#     await apicall(files)
     return "200"
 
 
@@ -162,5 +163,28 @@ def get_stores():
             
             return response_functions.success_response_sender(response_body,response_strings.restaurent_fetch_message)
     else:
-            raise InvalidDataError(response_strings.invalid_data_string)
+            return response_functions.bad_request_sender([],response_strings.invalid_data_string) 
         
+        
+        
+        
+# async def apicall(files):
+#         for file in files:
+#                 print("upload",file.filename)
+#                 await temp_upload(file)
+                
+                
+                
+# async def temp_upload(file):
+        
+#         base_path = '/home/divum/Documents/python training/Flask_Crud_App_Security/'
+#         if not os.path.exists(os.path.join(base_path,'uploads')):
+#                 os.mkdir(os.path.join(base_path,'uploads'))
+#         base_path = os.path.join(base_path,'uploads')
+#         user_name = request.headers['User-Data']
+#         if not os.path.exists(os.path.join(base_path,user_name)):
+#                os.mkdir(os.path.join(base_path,user_name))
+#         base_path = os.path.join(base_path,user_name)
+#         file_name = str(session_genarator.millis())+file.filename
+#         file.save(os.path.join(base_path,file_name))
+#         print(file.filename)

@@ -1,14 +1,9 @@
 from flask import Blueprint,request
-from geoalchemy2 import WKTElement
 from config import db
-from exception.DataNotPresentError import DataNotPresentError
-from exception.DuplicateDataError import DuplicateDataError
-from exception.InvalidDataError import InvalidDataError
 from common import response_strings,response_functions
 from models.models import ServiceProvider,Restaurent,Region
 from database import provider_service,restaurent_service,region_service
 from shapely.geometry import Point,Polygon
-from pyproj import Proj, transform
 
 admin_route = Blueprint('admin_route',__name__,url_prefix='/admin')
 
@@ -25,9 +20,9 @@ def create_service_provider():
       return response_functions.created_response_sender(None,response_strings.service_provider_created)
     else:
       session.rollback()
-      raise DuplicateDataError(response_strings.data_already_exist_message)
+      return response_functions.conflict_error_sender(None,response_strings.data_already_exist_message)
   else:
-    raise DataNotPresentError(response_strings.invalid_data_string)
+    return response_functions.bad_request_sender(None,response_strings.invalid_data_string)
   
   
 @admin_route.post('/restaurent/create')
@@ -41,20 +36,20 @@ def create_restaurent():
     for provider in providers:
       provider = provider_service.get_provider(provider)
       if provider is None:
-        raise DataNotPresentError(response_strings.provider_not_found)
+        return response_functions.not_found_sender(None,response_strings.provider_not_found)
       if provider in restaurent.service_providers:
-        raise DuplicateDataError(response_strings.duplicate_provider_message)
+        return response_functions.conflict_error_sender(None,response_strings.duplicate_provider_message)
       restaurent.service_providers.append(provider)
     session = db.session
     state = restaurent_service.create_restaurent(restaurent,session)
     if not state:
       session.rollback()
-      raise DuplicateDataError(response_strings.data_already_exist_message)
+      return response_functions.conflict_error_sender(None,response_strings.data_already_exist_message)
     else:
       session.commit()
       return response_functions.created_response_sender(None,response_strings.restaurent_create_message)
   else:
-    raise InvalidDataError(response_strings.invalid_data_string)
+    return response_functions.bad_request_sender(None,response_strings.invalid_data_string)
 
 
 @admin_route.post('/region/create')
@@ -78,10 +73,10 @@ def create_region():
         return response_functions.created_response_sender(None,response_strings.region_created_error)
       else :
         session.rollback()
-        raise DuplicateDataError(response_strings.data_already_exist_message)
+        return response_functions.conflict_error_sender(None,response_strings.data_already_exist_message)
     else:
-      raise InvalidDataError(response_strings.region_points_error)
+      return response_functions.bad_request_sender(None,response_strings.region_points_error)
   else:
-    raise InvalidDataError(response_strings.invalid_data_string)
+    return response_functions.bad_request_sender(None,response_strings.invalid_data_string)
   
 

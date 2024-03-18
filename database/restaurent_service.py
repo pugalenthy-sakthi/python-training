@@ -1,9 +1,7 @@
 from models.models import Restaurent,Region,ServiceProvider
 from sqlalchemy.exc import IntegrityError
-from exception.DataBaseError import DataBaseError
-from common import response_strings
+from common import response_strings,response_functions
 from geoalchemy2 import functions as func
-from geoalchemy2.comparator import Comparator
 from sqlalchemy import and_,asc
 
 def create_restaurent(restaurent:Restaurent,session):
@@ -14,7 +12,7 @@ def create_restaurent(restaurent:Restaurent,session):
   except IntegrityError:
     return False
   except Exception:
-    raise DataBaseError(response_strings.server_error_message)
+    return response_functions.server_error_sender(None,response_strings.server_error_message)
   
   
 def get_nearest_restaurents(service_provider,point):
@@ -26,7 +24,7 @@ def get_nearest_restaurents(service_provider,point):
         ).all()
     return nearest_points
   except Exception:
-    raise DataBaseError(response_strings.server_error_message)
+    return response_functions.server_error_sender(None,response_strings.server_error_message)
   
   
 def get_restaurents_by_region_and_points(service_provider:ServiceProvider,point,page_no,max_per_page):
@@ -38,6 +36,6 @@ def get_restaurents_by_region_and_points(service_provider:ServiceProvider,point,
     ).paginate(page=page_no,error_out=False,max_per_page=max_per_page)
     
   except:
-    raise DataBaseError(response_strings.server_error_message)
+    return response_functions.server_error_sender(None,response_strings.server_error_message)
   
   

@@ -19,4 +19,5 @@ def validate_login_data(login_data):
 
 def validate_user_login(login_data,user_data):
     return bcrypt.check_password_hash(user_data.password,login_data['password'])
+
     

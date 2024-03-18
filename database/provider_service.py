@@ -1,7 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 from models.models import ServiceProvider
-from exception.DataBaseError import DataBaseError
-from common import response_strings
+from common import response_strings,response_functions
 
 def create_service_provider(service_provider:ServiceProvider,session):
   
@@ -12,7 +11,7 @@ def create_service_provider(service_provider:ServiceProvider,session):
   except IntegrityError:
     return False
   except Exception:
-    raise DataBaseError(response_strings.server_error_message)
+    return response_functions.server_error_sender(None,response_strings.server_error_message)
   
   
   
@@ -21,6 +20,6 @@ def get_provider(provide_name):
     provider = ServiceProvider.query.filter_by(name = provide_name).first()
     return provider
   except Exception:
-    raise DataBaseError(response_strings.server_error_message)
+    return response_functions.server_error_sender(None,response_strings.server_error_message)
   
   
